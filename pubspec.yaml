@@ -1,5 +1,5 @@
 name: comparators
-description: A package providing simple Java-like comparators in Dart.
+description: A package providing flexible Java-like comparators in Dart.
 version: 0.0.1
 repository: https://github.com/mitryp/comparators
 
