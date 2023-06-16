@@ -1,3 +1,3 @@
-## 0.0.1
+## 1.0.0
 
-- Initial version.
+- Initial version: implemented Java-like comparators in Dart.

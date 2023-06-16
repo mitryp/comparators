@@ -1,6 +1,6 @@
 name: comparators
 description: A package providing flexible Java-like comparators in Dart.
-version: 0.0.1
+version: 1.0.0
 repository: https://github.com/mitryp/comparators
 
 environment:

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:comparators/comparators.dart';
+import 'package:comparators/extensions.dart';
 
 class DataClass {
   final int intValue;
