@@ -1,39 +1,85 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+## Make your code readable with functional Java-like by-field Comparators in Dart
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
+The `comparators` package is a toolset for creating Java-like comparators in Dart, designed to provide a way  
+to compare objects not having the `Comparable` interface by their fields.  It also includes extensions to chain and 
+invert comparators.
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
+> This package includes some functionality already included in the `collection` package: extensions to chain and inverse  
+> Comparators.
+>
+> If you already use that package in your project and only need this functionality, you don't need this package.
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
 
-## Features
+### Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+With `comparators/comparators.dart`:
+* By-field object comparators
+* Field transformation before comparison
+* Boolean comparison
 
-## Getting started
+With `comparators/extensions.dart`:
+* Comparator chaining
+* Comparator reversing
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
 
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
-
-```dart
-const like = 'sample';
+### Getting Started
+To install the package, run `pub add comparators` or add the following line to your `pubspec.yaml`:
+```yaml
+dependencies:
+  # other dependencies
+  comparators: ^<version>
 ```
 
-## Additional information
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+### Usage
+
+> The following utility functions can be imported from the `comparators/comparators.dart` file.
+
+Comparison by a single field:
+```dart
+// this will sort the list by the username field of the User object
+users.sort(compare((u) => u.username));
+```
+
+Comparison by a transformed field:
+```dart
+// this will sort the users by their username
+// before comparing the usernames will be transformed with the provided transform
+// in this case, it will lowercase the names to do a case insensitive comparison
+users.sort(
+  compareTransformed<User, String>((u) => u.username, (name) => name.toLowerCase()),
+);
+```
+
+Comparison by a boolean field:
+```dart
+users.sort(compareBool((u) => u.isActive));
+```
+When comparing boolean, the function will use the integer comparison and the following transformation: 
+`true => 1, false => 0`.
+
+---
+
+> The comparators can be chained together and reverted with the Comparator extensions imported from 
+the `comparators/extensions.dart`.
+
+Multi-field comparison with chaining and reverting:
+```dart
+// this will sort the users by their activity first, then by their email,
+// and then by their username
+users.sort(
+  // the users which active is set to true will come first in the list
+  compareBool<User>((u) => u.isActive).reversed.then(
+        // if both compared users have the same activity, the tie will be broken comparing by their email field
+        compare<User>((u) => u.email).then(
+          // and then by their username
+          compare<User>((u) => u.username),
+        ),
+      ),
+);
+```
+
+### Issues and contributions
+
+If you found any issues or would like to contribute to this package, feel free to do so at the project's 
+[GitHub](https://github.com/mitryp/comparators).
