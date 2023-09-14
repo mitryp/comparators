@@ -1,5 +1,9 @@
 ## Make your code readable with functional Java-like by-field comparators in Dart
 
+[![Dart Tests](https://github.com/mitryp/comparators/actions/workflows/dart.yml/badge.svg)](https://github.com/mitryp/comparators/actions/workflows/dart.yml?branch=master)
+[![Pub package](https://img.shields.io/pub/v/comparators.svg)](https://pub.dev/packages/comparators)
+[![Package publisher](https://img.shields.io/pub/publisher/comparators.svg)](https://pub.dev/packages/comparators/publisher)
+
 The `comparators` package is a toolset for creating Java-like comparators in Dart, designed to provide a way  
 to compare objects by their fields. It also includes extensions to chain and 
 invert comparators.
