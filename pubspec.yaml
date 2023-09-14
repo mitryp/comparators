@@ -2,6 +2,7 @@ name: comparators
 description: A package providing flexible Java-like comparator generators and extensions for Comparator functions.
 version: 1.0.0
 repository: https://github.com/mitryp/comparators
+issue_tracker: https://github.com/mitryp/comparators/issues
 
 environment:
   sdk: '>=2.17.0 <4.0.0'
