@@ -1,5 +1,5 @@
 name: comparators
-description: A package providing flexible Java-like comparators in Dart.
+description: A package providing flexible Java-like comparator generators and extensions for Comparator functions.
 version: 1.0.0
 repository: https://github.com/mitryp/comparators
 
@@ -9,3 +9,7 @@ environment:
 dev_dependencies:
   lints: ^2.0.0
   test: ^1.21.0
+  test_utils:
+    git:
+      url: 'https://github.com/mitryp/flutter_utils'
+      path: 'packages/test_utils'

@@ -21,6 +21,7 @@ import 'typedefs.dart';
 /// users.sort(
 ///   compareTransformed<User, bool>((u) => u.isAdmin, (val) => val ? 1 : 0),
 /// );
+/// // in this package, there is `compareBool` function which does the same same as in this example
 /// ```
 Comparator<T> compareTransformed<T, R>(
   FieldExtractor<T, R> fieldExtractor,

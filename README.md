@@ -12,12 +12,12 @@ invert comparators.
 
 ### Features
 
-With `comparators/comparators.dart`:
+Import `comparators/comparators.dart` to use:
 * By-field object comparators
 * Field transformation before comparison
 * Boolean comparison
 
-With `comparators/extensions.dart`:
+Import `comparators/extensions.dart` to use:
 * Comparator chaining
 * Comparator reversing
 
@@ -83,3 +83,8 @@ users.sort(
 
 If you found any issues or would like to contribute to this package, feel free to do so at the project's 
 [GitHub](https://github.com/mitryp/comparators).
+
+### Roadmap
+- [x] Basic java-like field comparators 
+- [x] Comparator chaining/reversal
+- [ ] List extensions
