@@ -2,7 +2,7 @@ import 'dart:math' show Random;
 
 import 'not_comparable.dart';
 
-const testRuns = 1000;
+const testRuns = 1000000;
 const randomListLength = 20;
 
 /// Checks whether the given [list] of [NotComparable] is sorted with the given [comparator].

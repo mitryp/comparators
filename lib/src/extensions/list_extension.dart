@@ -1,50 +1,34 @@
+/// A [List] extension adding methods related to [Comparator]s - [min], [max], [isSorted].
 extension ListExtension<E> on List<E> {
-  static const _defaultComparator = Comparable.compare;
+  /// A default comparator used in the methods when custom comparator is not given.
+  static int _defaultComparator(dynamic a, dynamic b) =>
+      Comparable.compare(a as Comparable, b as Comparable);
 
-  E? min([Comparator<E>? comparator]) {
-    _requireComparatorOrComparable(comparator);
+  /// Returns a minimum value of this list, comparing by the [comparator] if given, otherwise by
+  /// the [_defaultComparator]. If the list is empty, returns null.
+  ///
+  /// The default implementation uses [Comparable.compare] if [comparator] is omitted, so make sure
+  /// to pass the [comparator] for not comparable types - otherwise, this method will throw a
+  /// TypeError.
+  E? min([Comparator<E>? comparator]) => _findComparisonExtremum(
+      comparator ?? _defaultComparator, (compRes) => compRes < 0);
 
-    if (isEmpty) {
-      return null;
-    }
+  /// Returns a maximum value of this list, comparing by the [comparator] if given, otherwise by
+  /// the [_defaultComparator]. If the list is empty, returns null.
+  ///
+  /// The default implementation uses [Comparable.compare] if [comparator] is omitted, so make sure
+  /// to pass the [comparator] for not comparable types - otherwise, this method will throw a
+  /// TypeError.
+  E? max([Comparator<E>? comparator]) => _findComparisonExtremum(
+      comparator ?? _defaultComparator, (compRes) => compRes > 0);
 
-    final compare = comparator ?? _defaultComparator as Comparator<E>;
-
-    var min = first;
-    for (var i = 1; i < length; i++) {
-      final elem = this[i];
-      if (compare(min, elem) < 0) {
-        min = elem;
-      }
-    }
-
-    return min;
-  }
-
-  E? max([Comparator<E>? comparator]) {
-    _requireComparatorOrComparable(comparator);
-
-    if (isEmpty) {
-      return null;
-    }
-
-    final compare = comparator ?? _defaultComparator as Comparator<E>;
-
-    var max = first;
-    for (var i = 0; i < length; i++) {
-      final elem = this[i];
-      if (compare(max, elem) > 0) {
-        max = elem;
-      }
-    }
-
-    return max;
-  }
-
+  /// Returns true if this list is sorted according to the given [comparator].
+  ///
+  /// The default implementation uses [Comparable.compare] if [comparator] is omitted, so make sure
+  /// to pass the [comparator] for not comparable types - otherwise, this method will throw a
+  /// TypeError.
   bool isSorted([Comparator<E>? comparator]) {
-    _requireComparatorOrComparable(comparator);
-
-    final compare = comparator ?? _defaultComparator as Comparator<E>;
+    final compare = comparator ?? _defaultComparator;
 
     for (var i = 0; i < length - 1; i++) {
       if (compare(this[i], this[i + 1]) > 0) {
@@ -52,17 +36,23 @@ extension ListExtension<E> on List<E> {
       }
     }
 
-    return false;
+    return true;
   }
 
-  void _requireComparatorOrComparable(Comparator<E>? comparator) {
-    if (E is Comparable<E> || comparator != null) {
-      return;
+  E? _findComparisonExtremum(
+      Comparator<E> comparator, bool Function(int compRes) predicate) {
+    if (isEmpty) {
+      return null;
     }
 
-    throw StateError(
-      'Comparator was not given for method on List<$E>, '
-      'while $E does not implement the Comparable interface',
-    );
+    var current = first;
+    for (var i = 1; i < length; i++) {
+      final elem = this[i];
+      if (predicate(comparator(current, elem))) {
+        current = elem;
+      }
+    }
+
+    return current;
   }
 }

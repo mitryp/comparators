@@ -2,6 +2,7 @@ import 'dart:math' show Random;
 
 import 'package:comparators/comparators.dart';
 import 'package:comparators/extensions.dart';
+import 'package:comparators/src/extensions/list_extension.dart';
 import 'package:test/expect.dart';
 import 'package:test/scaffolding.dart';
 import 'package:test_utils/test_utils.dart';
@@ -15,7 +16,7 @@ void main() {
     compareBool<NotComparable>((nc) => nc.boolValue),
   );
 
-  group('Extensions tests', () {
+  group('Comparator extensions tests', () {
     test(
       '`ComparatorChaining` extension works correctly',
       () => repeat(times: testRuns, () {
@@ -50,4 +51,70 @@ void main() {
       }),
     );
   });
+
+  group('List extension tests', () {
+    List<int> rIntList() =>
+        List.generate(randomListLength, (_) => rand.nextInt(99999));
+
+    test(
+      'All methods throw a TypeError when used on a list '
+      'of not comparable elements without a custom comparator',
+      () => repeat(times: testRuns, () {
+        final l = rList(rand);
+
+        expect(l.min, throwsA(isA<TypeError>()));
+        expect(l.max, throwsA(isA<TypeError>()));
+        expect(l.isSorted, throwsA(isA<TypeError>()));
+      }),
+    );
+
+    test(
+      'Neither method throws when a comparator supplied',
+      () => repeat(times: testRuns, () {
+        final l = rList(rand);
+        int comparator(NotComparable a, NotComparable b) => 1;
+
+        expect(() => l.min(comparator), returnsNormally);
+        expect(() => l.max(comparator), returnsNormally);
+        expect(() => l.isSorted(comparator), returnsNormally);
+      }),
+    );
+
+    test(
+      '`isSorted` method works correctly',
+      () => repeat(times: testRuns, () {
+        final list = rIntList();
+
+        expect(list.isSorted(), equals(_isSorted(list)));
+
+        list.sort();
+
+        expect(list.isSorted(), equals(_isSorted(list)));
+
+        final reverseComparator = Comparable.compare.reversed;
+
+        list.sort(reverseComparator);
+        expect(list.isSorted(reverseComparator),
+            equals(_isSorted(list, reverseComparator)));
+      }),
+    );
+  });
+}
+
+bool _isSorted<E>(List<E> list, [Comparator<E>? comparator]) {
+  final copy = list.toList()..sort(comparator);
+
+  return _listEquality(list, copy);
+}
+
+bool _listEquality<E>(List<E> l1, List<E> l2) {
+  if (l1.length != l2.length) {
+    return false;
+  }
+
+  for (var i = 0; i < l1.length; i++) {
+    if (l1[i] != l2[i]) return false;
+  }
+
+  return true;
 }
