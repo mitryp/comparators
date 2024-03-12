@@ -22,13 +22,6 @@ void main() {
         final list = rList(rand);
 
         final listMatcher = list.toList();
-        int matcherComparator(NotComparable a, NotComparable b) {
-          if (a.intValue != b.intValue) return a.intValue.compareTo(b.intValue);
-
-          final aB = a.boolValue ? 1 : 0, bB = b.boolValue ? 1 : 0;
-
-          return aB.compareTo(bB);
-        }
 
         list.sort(comparator);
         listMatcher.sort(matcherComparator);

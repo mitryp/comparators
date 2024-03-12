@@ -72,5 +72,23 @@ void main() {
         expect(isSorted(list, comparator: comparator), isTrue);
       }),
     );
+
+    test(
+      '`compareSequentially` works correctly',
+      () => repeat(times: testRuns, () {
+        final list = rList(rand);
+        final matcher = [...list];
+
+        final comparator = compareSequentially<NotComparable>([
+          compare((nc) => nc.intValue),
+          compareBool((nc) => nc.boolValue),
+        ]);
+
+        list.sort(comparator);
+        matcher.sort(matcherComparator);
+
+        expect(list, orderedEquals(matcher));
+      }),
+    );
   });
 }
