@@ -1,5 +1,5 @@
+import 'package:collection/collection.dart' show ComparatorExtension;
 import 'package:comparators/comparators.dart';
-import 'package:comparators/extensions.dart';
 
 final List<User> users = [
   const User(
@@ -41,41 +41,43 @@ final List<User> users = [
 ];
 
 void main() {
-  _printUsers();
+  var usersCopy = [...users];
+  void reset() => usersCopy = [...users];
+  void printUsers({String trailing = '\n'}) =>
+      print('${usersCopy.join('\n')}$trailing');
+
+  printUsers();
 
   // this will sort the list by the username field of the User object
-  users.sort(compare((u) => u.username));
+  usersCopy.sort(compare((u) => u.username));
 
-  _printUsers();
-
-  // this will sort the users by their username
-  // before comparing the usernames will be transformed with the provided transform
-  // in this case, it will lowercase the names to do a case insensitive comparison
-  users.sort(
-    compareTransformed<User, String>(
-        (u) => u.username, (name) => name.toLowerCase()),
-  );
-
-  _printUsers();
+  printUsers();
+  reset();
 
   // this will sort the users by their activity first, then by their email,
   // and then by their username
-  users.sort(
+  usersCopy.sort(
     // the users which active is set to true will come first in the list
-    compareBool<User>((u) => u.isActive).reversed.then(
+    compareBool((User u) => u.isActive).inverse.then(
           // then users will be sorted by their email field
-          compare<User>((u) => u.email).then(
+          compare((User u) => u.email).then(
             // and then by their username
-            compare<User>((u) => u.username),
+            compare((User u) => u.username),
           ),
         ),
   );
 
-  _printUsers(trailing: '');
-}
+  printUsers();
+  reset();
 
-void _printUsers({String trailing = '\n'}) =>
-    print('${users.join('\n')}$trailing');
+  usersCopy.sort(compareSequentially([
+    compareBool((User u) => u.isActive).inverse,
+    compare((u) => u.email),
+    compare((u) => u.username),
+  ]));
+
+  printUsers(trailing: '');
+}
 
 /// A class representing a user with an id, username, email and activity status.
 class User {
