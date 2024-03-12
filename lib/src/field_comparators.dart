@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart' show ComparatorExtension;
 import 'package:comparators/src/util.dart';
 
 import 'typedefs.dart';
@@ -76,4 +77,49 @@ Comparator<T> compare<T>(FieldExtractor<T, Comparable> fieldExtractor) {
 /// transformation: `true => 1, false => 0`.
 Comparator<T> compareBool<T>(FieldExtractor<T, bool> fieldExtractor) {
   return _compareTransformed(fieldExtractor, boolTransformer);
+}
+
+/// Returns a comparator that will compare the values of [T] using the [comparators] in their order in the iterable.
+/// Next comparators are used as tie breakers for the previous ones.
+///
+/// This approach allows Dart to infer the comparator types from the context and does not require providing generics
+/// explicitly for most cases.
+///
+/// Example:
+/// ```dart
+/// // chaining using `then` from the `package:collection`
+/// users.sort(
+///   compare<User>((user) => user.name).then(
+///     compare<User>((user) => user.surname).then(
+///       compare<User>((user) => user.country),
+///     ),
+///   ),
+/// );
+///
+/// // with `compareSequentially`
+/// users.sort(compareSequentially([
+///   compare((user) => user.name),
+///   compare((user) => user.surname),
+///   compare((user) => user.country),
+/// ]));
+///
+/// Using `inverse` from
+/// users.sort(compareSequentially([
+///   // ...
+///   compare((User user) => user.surname).inverse,
+///   // ...
+/// ]));
+/// ```
+Comparator<T> compareSequentially<T>(Iterable<Comparator<T>> comparators) {
+  if (comparators.isEmpty) {
+    throw StateError('An empty iterable of Comparators cannot be combined');
+  }
+
+  var combined = comparators.first;
+
+  for (final comparator in comparators.skip(1)) {
+    combined = combined.then(comparator);
+  }
+
+  return combined;
 }
