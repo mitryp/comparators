@@ -56,25 +56,29 @@ void main() {
 
   // this will sort the users by their activity first, then by their email,
   // and then by their username
-  usersCopy.sort(
+  // * `inverse` is from the `package:collection`
+  usersCopy.sort(compareSequentially([
     // the users which active is set to true will come first in the list
-    compareBool((User u) => u.isActive).inverse.then(
-          // then users will be sorted by their email field
-          compare((User u) => u.email).then(
-            // and then by their username
-            compare((User u) => u.username),
-          ),
-        ),
-  );
+    // note that using `inverse` requires explicit type in the comparator
+    compareBool((User u) => u.isActive).inverse,
+    // then users will be sorted by their email field
+    compare((u) => u.email),
+    // and then by their username
+    compare((u) => u.username),
+  ]));
 
   printUsers();
   reset();
 
-  usersCopy.sort(compareSequentially([
-    compareBool((User u) => u.isActive).inverse,
-    compare((u) => u.email),
-    compare((u) => u.username),
-  ]));
+  // alternatively, it is possible to achieve the same result using `then` and `inverse` extension methods from the
+  // `package:collection`, but it is necessary to write types explicitly in most cases
+  usersCopy.sort(
+    compareBool((User u) => u.isActive).inverse.then(
+          compare((User u) => u.email).then(
+            compare((User u) => u.username),
+          ),
+        ),
+  );
 
   printUsers(trailing: '');
 }
