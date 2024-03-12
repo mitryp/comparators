@@ -6,7 +6,8 @@ extension ComparatorChaining<T> on Comparator<T> {
   ///
   /// Firstly, this comparator will be used, and if the result is 0, the
   /// [nextComparator] will be used.
-  @Deprecated('It duplicates the functionality of `then` from the `package:collection` and will be removed in v2.0.0')
+  @Deprecated('It duplicates the functionality of \'then\' '
+      'from the \'package:collection\' and will be removed in v2.0.0')
   Comparator<T> then(Comparator<T> nextComparator) => (a, b) {
         final firstComparison = call(a, b);
 
