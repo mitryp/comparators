@@ -46,9 +46,6 @@ Comparator<T> _compareTransformed<T, R>(
 /// Returns a [Comparator] of type [T] comparing by the [Comparable] field of
 /// type [R] extracted with the [fieldExtractor].
 ///
-/// It is a shorthand for the [compareTransformed] comparator function for the
-/// fields that are [Comparable] by themselves.
-///
 /// Example:
 /// ```dart
 /// // compare by a single field
@@ -103,7 +100,7 @@ Comparator<T> compareBool<T>(FieldExtractor<T, bool> fieldExtractor) {
 ///   compare((user) => user.country),
 /// ]));
 ///
-/// Using `inverse` from
+/// // using `inverse` from the `package:collection`
 /// users.sort(compareSequentially([
 ///   // ...
 ///   compare((User user) => user.surname).inverse,
