@@ -1,30 +1,23 @@
-## Make your code readable with functional Java-like by-field comparators in Dart
+## Make your sorts readable with functional by-field comparators
 
 [![Dart Tests](https://github.com/mitryp/comparators/actions/workflows/dart.yml/badge.svg)](https://github.com/mitryp/comparators/actions/workflows/dart.yml?branch=master)
 [![Pub package](https://img.shields.io/pub/v/comparators.svg)](https://pub.dev/packages/comparators)
 [![Package publisher](https://img.shields.io/pub/publisher/comparators.svg)](https://pub.dev/packages/comparators/publisher)
 
 The `comparators` package is a toolset for creating Java-like comparators in Dart, designed to provide a way  
-to compare objects by their fields. It also includes extensions to chain and 
-invert comparators.
-
-> This package includes some functionality already included in the `collection` package: extensions to chain and inverse  
-> comparators.
->
-> If you already use that package in your project and only need this functionality, you won't need this package.
-
+to compare objects by their fields. It also provides a declarative way to combine comparators sequentially.
 
 ### Features
 
 Import `comparators/comparators.dart` to use:
 * By-field object comparators
-* Field transformation before comparison
 * Boolean comparison
+* Combining comparators to break ties
 
-Import `comparators/extensions.dart` to use:
-* Comparator chaining
-* Comparator reversing
+Comparator extensions `then` and `reversed` from this package are **deprecated** and will be removed in 2.0.0.
+Please, use the analogues from the `package:collection`: `then` and `inverse`.
 
+In 2.0.0, this package will export those instead of the removed ones. 
 
 ### Getting Started
 To install the package, run `pub add comparators` or add the following line to your `pubspec.yaml`:
@@ -45,16 +38,6 @@ Comparison by a single field:
 users.sort(compare((u) => u.username));
 ```
 
-Comparison by a transformed field:
-```dart
-// this will sort the users by their username
-// before comparing the usernames will be transformed with the provided transform
-// in this case, it will lowercase the names to do a case insensitive comparison
-users.sort(
-  compareTransformed<User, String>((u) => u.username, (name) => name.toLowerCase()),
-);
-```
-
 Comparison by a boolean field:
 ```dart
 users.sort(compareBool((u) => u.isActive));
@@ -62,33 +45,38 @@ users.sort(compareBool((u) => u.isActive));
 When comparing boolean, the function will use the integer comparison and the following transformation: 
 `true => 1, false => 0`.
 
----
-
-> The comparators can be chained together and reverted with the Comparator extensions imported from 
-the `comparators/extensions.dart`.
-
-Multi-field comparison with chaining and reverting:
+Combining comparators to compare sequentially:
 ```dart
-// this will sort the users by their activity first, then by their email,
-// and then by their username
+users.sort(compareSequentially([
+    compare((user) => user.name),
+    compare((user) => user.surname),
+    compare((user) => user.country),
+]));
+```
+
+In this example, user objects will be compared by a name first,
+then by a surname, and by a country.
+
+The same result could be achieved using comparator chaining from the `package:collection`,
+but in a less declarative way:
+```dart
 users.sort(
-  // the users which active is set to true will come first in the list
-  compareBool<User>((u) => u.isActive).reversed.then(
-        // if both compared users have the same activity, the tie will be broken comparing by their email field
-        compare<User>((u) => u.email).then(
-          // and then by their username
-          compare<User>((u) => u.username),
-        ),
-      ),
+  compare((User user) => user.name).then(
+    compare((User user) => user.surname).then(
+      compare((User user) => user.country),
+    ),
+  ),
 );
 ```
+
+Also, note that the compiler cannot infer types in the example with chaining, 
+but can with `compareSequentially`.
+
+---
 
 ### Issues and contributions
 
 If you found any issues or would like to contribute to this package, feel free to do so at the project's 
 [GitHub](https://github.com/mitryp/comparators).
-
-### Roadmap
-- [x] Basic java-like field comparators 
-- [x] Comparator chaining/reversal
-- [ ] List extensions
+Contributions are welcome - start the discussion in the 
+[Issue tracker](https://github.com/mitryp/comparators/issues).
