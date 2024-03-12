@@ -1,4 +1,4 @@
-/// A [Comparator] extension adding [then] method to allow chaining the
+/// A [Comparator] extension adding `then` method to allow chaining the
 /// comparators together.
 extension ComparatorChaining<T> on Comparator<T> {
   /// Returns a new [Comparator] combining this one and the given

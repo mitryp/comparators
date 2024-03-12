@@ -1,4 +1,4 @@
-/// A [Comparator] extension adding the [reversed] getter to allow reversing the
+/// A [Comparator] extension adding the `reversed` getter to allow reversing the
 /// comparing operation.
 extension ComparatorReversing<T> on Comparator<T> {
   /// Returns a new [Comparator] that compares the elements in the reversed
