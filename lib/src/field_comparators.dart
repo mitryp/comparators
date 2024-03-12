@@ -23,7 +23,14 @@ import 'typedefs.dart';
 /// );
 /// // in this package, there is `compareBool` function which does the same same as in this example
 /// ```
+@Deprecated('It will be made private starting from v2.0.0')
 Comparator<T> compareTransformed<T, R>(
+  FieldExtractor<T, R> fieldExtractor,
+  ComparableTransformer<R, Comparable> comparableTransformer,
+) =>
+    _compareTransformed(fieldExtractor, comparableTransformer);
+
+Comparator<T> _compareTransformed<T, R>(
   FieldExtractor<T, R> fieldExtractor,
   ComparableTransformer<R, Comparable> comparableTransformer,
 ) {
@@ -58,7 +65,8 @@ Comparator<T> compareTransformed<T, R>(
 /// );
 /// ```
 Comparator<T> compare<T>(FieldExtractor<T, Comparable> fieldExtractor) {
-  return compareTransformed<T, Comparable>(fieldExtractor, identityTransformer);
+  return _compareTransformed<T, Comparable>(
+      fieldExtractor, identityTransformer);
 }
 
 /// Returns a comparator for a boolean field extracted with the given
@@ -67,5 +75,5 @@ Comparator<T> compare<T>(FieldExtractor<T, Comparable> fieldExtractor) {
 /// Internally it will use the integer comparison and the following
 /// transformation: `true => 1, false => 0`.
 Comparator<T> compareBool<T>(FieldExtractor<T, bool> fieldExtractor) {
-  return compareTransformed(fieldExtractor, boolTransformer);
+  return _compareTransformed(fieldExtractor, boolTransformer);
 }

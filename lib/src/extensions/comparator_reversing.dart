@@ -7,5 +7,6 @@ extension ComparatorReversing<T> on Comparator<T> {
   /// For example, if this comparator compares the elements in the ascending
   /// order, the reversed comparator will compare the elements in the descending
   /// order.
+  @Deprecated('It duplicates the \'inverse\' from the \'package:collection\' and will be removed in v2.0.0')
   Comparator<T> get reversed => (a, b) => call(b, a);
 }
