@@ -18,3 +18,12 @@ bool isSorted(List<NotComparable> list,
 /// Generates a list of [randomListLength] of random [NotComparable] objects.
 List<NotComparable> rList(Random rand) =>
     List.generate(randomListLength, (_) => NotComparable.random(rand));
+
+/// A comparator comparing first by [NotComparable.intValue], and then by [NotComparable.boolValue].
+int matcherComparator(NotComparable a, NotComparable b) {
+  if (a.intValue != b.intValue) return a.intValue.compareTo(b.intValue);
+
+  final aB = a.boolValue ? 1 : 0, bB = b.boolValue ? 1 : 0;
+
+  return aB.compareTo(bB);
+}

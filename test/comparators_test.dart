@@ -38,6 +38,7 @@ void main() {
       '`compareTransformed` works correctly',
       () => repeat(times: testRuns, () {
         final list = rList(rand);
+        // ignore: deprecated_member_use_from_same_package
         final comparator = compareTransformed<NotComparable, NotComparable>(
           (nc) => nc,
           (nc) => nc.intValue,
@@ -70,6 +71,24 @@ void main() {
         list.sort(comparator);
 
         expect(isSorted(list, comparator: comparator), isTrue);
+      }),
+    );
+
+    test(
+      '`compareSequentially` works correctly',
+      () => repeat(times: testRuns, () {
+        final list = rList(rand);
+        final matcher = [...list];
+
+        final comparator = compareSequentially<NotComparable>([
+          compare((nc) => nc.intValue),
+          compareBool((nc) => nc.boolValue),
+        ]);
+
+        list.sort(comparator);
+        matcher.sort(matcherComparator);
+
+        expect(list, orderedEquals(matcher));
       }),
     );
   });
