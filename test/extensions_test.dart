@@ -11,6 +11,7 @@ import 'utils.dart';
 
 void main() {
   final rand = Random();
+  // ignore: deprecated_member_use_from_same_package
   final comparator = compare<NotComparable>((nc) => nc.intValue).then(
     compareBool<NotComparable>((nc) => nc.boolValue),
   );
@@ -36,6 +37,7 @@ void main() {
         final list = rList(rand);
         var listMatcher = list.toList();
 
+        // ignore: deprecated_member_use_from_same_package
         list.sort(comparator.reversed);
         listMatcher = (listMatcher..sort(comparator)).reversed.toList();
 

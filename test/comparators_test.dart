@@ -38,6 +38,7 @@ void main() {
       '`compareTransformed` works correctly',
       () => repeat(times: testRuns, () {
         final list = rList(rand);
+        // ignore: deprecated_member_use_from_same_package
         final comparator = compareTransformed<NotComparable, NotComparable>(
           (nc) => nc,
           (nc) => nc.intValue,
