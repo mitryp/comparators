@@ -38,6 +38,12 @@ Comparison by a single field:
 users.sort(compare((u) => u.username));
 ```
 
+Comparison by a single field in an inverse order:
+```dart
+// this will sort the list by the username field of the User object
+users.sort(compareInverse((u) => u.username));
+```
+
 Comparison by a boolean field:
 ```dart
 users.sort(compareBool((u) => u.isActive));
