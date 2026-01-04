@@ -34,47 +34,58 @@ Comparator<T> compareTransformed<T, R>(
 Comparator<T> _compareTransformed<T, R>(
   FieldExtractor<T, R> fieldExtractor,
   ComparableTransformer<R, Comparable> comparableTransformer,
-) {
-  return (a, b) {
-    final valueA = comparableTransformer(fieldExtractor(a));
-    final valueB = comparableTransformer(fieldExtractor(b));
+) =>
+    (a, b) {
+      final valueA = comparableTransformer(fieldExtractor(a));
+      final valueB = comparableTransformer(fieldExtractor(b));
 
-    return Comparable.compare(valueA, valueB);
-  };
-}
+      return Comparable.compare(valueA, valueB);
+    };
 
-/// Returns a [Comparator] of type [T] comparing by the [Comparable] field of
-/// type [R] extracted with the [fieldExtractor].
+/// Returns a [Comparator] of type [T] comparing by the [Comparable] field extracted with the [fieldExtractor].
 ///
 /// Example:
 /// ```dart
 /// // compare by a single field
 /// users.sort(compare((u) => u.name));
 ///
-/// // compare by multiple fields with comparator chaining
-/// // unfortunately, Dart cannot infer chained types correctly, so it is
-/// // required to provide the type parameters explicitly
+/// // compare by multiple fields with `compareSequentially`
 /// users.sort(
-///   compare<User>((user) => user.name).then(
-///     compare<User>((user) => user.surname).then(
-///       compare<User>((user) => user.country),
-///     ),
+///   compareSequentially(
+///     compare((user) => user.name),
+///     compare((user) => user.surname),
+///     compare((user) => user.country)
 ///   ),
 /// );
 /// ```
-Comparator<T> compare<T>(FieldExtractor<T, Comparable> fieldExtractor) {
-  return _compareTransformed<T, Comparable>(
-      fieldExtractor, identityTransformer);
-}
+Comparator<T> compare<T>(FieldExtractor<T, Comparable> fieldExtractor) =>
+    _compareTransformed<T, Comparable>(
+      fieldExtractor,
+      identityTransformer,
+    );
+
+/// Returns a [Comparator] of type [T] comparing by the [Comparable] field extracted with the [fieldExtractor],
+/// in an inverse order.
+/// Identical to calling `compare` with the arguments swapped:
+/// ```dart
+/// (a, b) => compare(...).call(b, a);
+/// ```
+///
+/// Example:
+/// ```dart
+/// // compare by a single field in an inverse order
+/// users.sort(compareInverse((u) => u.name));
+/// ```
+Comparator<T> compareInverse<T>(FieldExtractor<T, Comparable> fieldExtractor) =>
+    (a, b) => compare(fieldExtractor).call(b, a);
 
 /// Returns a comparator for a boolean field extracted with the given
 /// [fieldExtractor].
 ///
-/// Internally it will use the integer comparison and the following
+/// Internally, it will use integer comparison and the following
 /// transformation: `true => 1, false => 0`.
-Comparator<T> compareBool<T>(FieldExtractor<T, bool> fieldExtractor) {
-  return _compareTransformed(fieldExtractor, boolTransformer);
-}
+Comparator<T> compareBool<T>(FieldExtractor<T, bool> fieldExtractor) =>
+    _compareTransformed(fieldExtractor, boolTransformer);
 
 /// Returns a comparator that will compare the values of [T] using the [comparators] in their order in the iterable.
 /// Next comparators are used as tie breakers for the previous ones.

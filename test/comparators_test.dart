@@ -63,6 +63,18 @@ void main() {
     );
 
     test(
+      '`compareInverse` works correctly',
+      () => repeat(times: testRuns, () {
+        final list = rList(rand);
+        final comparator = compareInverse<NotComparable>((nc) => nc.intValue);
+
+        list.sort(comparator);
+
+        expect(isSorted(list, comparator: (a, b) => comparator(b, a)), isTrue);
+      }),
+    );
+
+    test(
       '`compareBool` works correctly',
       () => repeat(times: testRuns, () {
         final list = rList(rand);
