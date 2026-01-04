@@ -1,6 +1,6 @@
 ## Make your sorts readable with functional by-field comparators
 
-[![Dart Tests](https://github.com/mitryp/comparators/actions/workflows/dart.yml/badge.svg)](https://github.com/mitryp/comparators/actions/workflows/dart.yml?branch=master)
+[![Dart Tests](https://github.com/mitryp/comparators/actions/workflows/test.yml/badge.svg)](https://github.com/mitryp/comparators/actions/workflows/dart.yml?branch=master)
 [![Pub package](https://img.shields.io/pub/v/comparators.svg)](https://pub.dev/packages/comparators)
 [![Package publisher](https://img.shields.io/pub/publisher/comparators.svg)](https://pub.dev/packages/comparators/publisher)
 
