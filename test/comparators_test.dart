@@ -7,7 +7,7 @@ import 'package:test/scaffolding.dart';
 import 'package:test_utils/test_utils.dart';
 
 import 'not_comparable.dart';
-import 'utils.dart';
+import 'utils.dart' as utils;
 
 void main() {
   final rand = Random();
@@ -15,7 +15,7 @@ void main() {
   group('Utils tests', () {
     test(
       '`identityTransformer` works correctly',
-      () => repeat(times: testRuns, () {
+      () => repeat(times: utils.testRuns, () {
         final i = rand.nextInt(99999);
 
         expect(identityTransformer(i), equals(i));
@@ -24,7 +24,7 @@ void main() {
 
     test(
       '`boolTransformer` works correctly',
-      () => repeat(times: testRuns, () {
+      () => repeat(times: utils.testRuns, () {
         final b = rand.nextBool();
         final matcher = [false, true].indexOf(b);
 
@@ -36,8 +36,8 @@ void main() {
   group('Comparators tests', () {
     test(
       '`compareTransformed` works correctly',
-      () => repeat(times: testRuns, () {
-        final list = rList(rand);
+      () => repeat(times: utils.testRuns, () {
+        final list = utils.rList(rand);
         // ignore: deprecated_member_use_from_same_package
         final comparator = compareTransformed<NotComparable, NotComparable>(
           (nc) => nc,
@@ -46,50 +46,51 @@ void main() {
 
         list.sort(comparator);
 
-        expect(isSorted(list, comparator: comparator), isTrue);
+        expect(utils.isSorted(list, comparator: comparator), isTrue);
       }),
     );
 
     test(
       '`compare` works correctly',
-      () => repeat(times: testRuns, () {
-        final list = rList(rand);
+      () => repeat(times: utils.testRuns, () {
+        final list = utils.rList(rand);
         final comparator = compare<NotComparable>((nc) => nc.intValue);
 
         list.sort(comparator);
 
-        expect(isSorted(list, comparator: comparator), isTrue);
+        expect(utils.isSorted(list, comparator: comparator), isTrue);
       }),
     );
 
     test(
       '`compareInverse` works correctly',
-      () => repeat(times: testRuns, () {
-        final list = rList(rand);
+      () => repeat(times: utils.testRuns, () {
+        final list = utils.rList(rand);
         final comparator = compareInverse<NotComparable>((nc) => nc.intValue);
 
         list.sort(comparator);
 
-        expect(isSorted(list, comparator: (a, b) => comparator(b, a)), isTrue);
+        expect(utils.isSorted(list, comparator: (a, b) => comparator(b, a)),
+            isTrue);
       }),
     );
 
     test(
       '`compareBool` works correctly',
-      () => repeat(times: testRuns, () {
-        final list = rList(rand);
+      () => repeat(times: utils.testRuns, () {
+        final list = utils.rList(rand);
         final comparator = compareBool<NotComparable>((nc) => nc.boolValue);
 
         list.sort(comparator);
 
-        expect(isSorted(list, comparator: comparator), isTrue);
+        expect(utils.isSorted(list, comparator: comparator), isTrue);
       }),
     );
 
     test(
       '`compareSequentially` works correctly',
-      () => repeat(times: testRuns, () {
-        final list = rList(rand);
+      () => repeat(times: utils.testRuns, () {
+        final list = utils.rList(rand);
         final matcher = [...list];
 
         final comparator = compareSequentially<NotComparable>([
@@ -98,7 +99,7 @@ void main() {
         ]);
 
         list.sort(comparator);
-        matcher.sort(matcherComparator);
+        matcher.sort(utils.matcherComparator);
 
         expect(list, orderedEquals(matcher));
       }),
