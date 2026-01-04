@@ -67,11 +67,14 @@ void main() {
       () => repeat(times: utils.testRuns, () {
         final list = utils.rList(rand);
         final comparator = compareInverse<NotComparable>((nc) => nc.intValue);
+        final originalComparator = compare<NotComparable>((nc) => nc.intValue);
 
         list.sort(comparator);
 
-        expect(utils.isSorted(list, comparator: (a, b) => comparator(b, a)),
-            isTrue);
+        expect(
+          utils.isSorted(list, comparator: (a, b) => originalComparator(b, a)),
+          isTrue,
+        );
       }),
     );
 
