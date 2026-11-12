@@ -1,48 +1,38 @@
-import 'dart:math' show Random;
+// ignore_for_file: deprecated_member_use_from_same_package
 
 import 'package:comparators/comparators.dart';
 import 'package:comparators/extensions.dart';
-import 'package:test/expect.dart';
-import 'package:test/scaffolding.dart';
-import 'package:test_utils/test_utils.dart';
+import 'package:test/test.dart';
 
 import 'not_comparable.dart';
 import 'utils.dart';
 
 void main() {
-  final rand = Random();
-  // ignore: deprecated_member_use_from_same_package
   final comparator = compare<NotComparable>((nc) => nc.intValue).then(
     compareBool<NotComparable>((nc) => nc.boolValue),
   );
 
   group('Extensions tests', () {
-    test(
-      '`ComparatorChaining` extension works correctly',
-      () => repeat(times: testRuns, () {
+    test('`ComparatorChaining` extension breaks ties', () {
+      repeatSeeded((rand) {
         final list = rList(rand);
-
-        final listMatcher = list.toList();
+        final expected = [...list]..sort(matcherComparator);
 
         list.sort(comparator);
-        listMatcher.sort(matcherComparator);
 
-        expect(list, orderedEquals(listMatcher));
-      }),
-    );
+        expect(list, orderedEquals(expected));
+      });
+    });
 
-    test(
-      '`ComparatorReversing` extension works correctly',
-      () => repeat(times: testRuns, () {
+    test('`ComparatorReversing` extension reverses the order', () {
+      repeatSeeded((rand) {
         final list = rList(rand);
-        var listMatcher = list.toList();
+        final expected = ([...list]..sort(matcherComparator)).reversed.toList();
 
-        // ignore: deprecated_member_use_from_same_package
         list.sort(comparator.reversed);
-        listMatcher = (listMatcher..sort(comparator)).reversed.toList();
 
-        expect(list, orderedEquals(listMatcher));
-      }),
-    );
+        expect(list, orderedEquals(expected));
+      });
+    });
   });
 }

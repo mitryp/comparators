@@ -1,6 +1,6 @@
 ## Make your sorts readable with functional by-field comparators
 
-[![Dart Tests](https://github.com/mitryp/comparators/actions/workflows/test.yml/badge.svg)](https://github.com/mitryp/comparators/actions/workflows/dart.yml?branch=master)
+[![Dart Tests](https://github.com/mitryp/comparators/actions/workflows/test.yml/badge.svg)](https://github.com/mitryp/comparators/actions/workflows/test.yml?query=branch%3Amaster)
 [![Pub package](https://img.shields.io/pub/v/comparators.svg)](https://pub.dev/packages/comparators)
 [![Package publisher](https://img.shields.io/pub/publisher/comparators.svg)](https://pub.dev/packages/comparators/publisher)
 
@@ -10,17 +10,21 @@ to compare objects by their fields. It also provides a declarative way to combin
 ### Features
 
 Import `comparators/comparators.dart` to use:
-* By-field object comparators
+* By-field object comparators, in an ascending or an inverse order
 * Boolean comparison
 * Combining comparators to break ties
 
 Comparator extensions `then` and `reversed` from this package are **deprecated** and will be removed in 2.0.0.
 Please, use the analogues from the `package:collection`: `then` and `inverse`.
 
-In 2.0.0, this package will export those instead of the removed ones. 
+In 2.0.0, this package will export those instead of the removed ones.
+
+Note that `package:comparators/extensions.dart` and `package:collection/collection.dart` cannot be imported together
+in a library that calls `then`: both declare it on `Comparator`, so the call is ambiguous and won't compile.
+When switching to `package:collection`, remove the `package:comparators/extensions.dart` import.
 
 ### Getting Started
-To install the package, run `pub add comparators` or add the following line to your `pubspec.yaml`:
+To install the package, run `dart pub add comparators` or add the following line to your `pubspec.yaml`:
 ```yaml
 dependencies:
   # other dependencies
@@ -40,7 +44,7 @@ users.sort(compare((u) => u.username));
 
 Comparison by a single field in an inverse order:
 ```dart
-// this will sort the list by the username field of the User object
+// this will sort the list by the username field of the User object, in a descending order
 users.sort(compareInverse((u) => u.username));
 ```
 

@@ -5,27 +5,56 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
+  workflow_call:
 
 jobs:
-  build:
+  test:
+    name: Test (stable SDK)
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
 
-      # Note: This workflow uses the latest stable version of the Dart SDK.
-      # You can specify other versions if desired, see documentation here:
-      # https://github.com/dart-lang/setup-dart/blob/main/README.md
       - uses: dart-lang/setup-dart@v1
 
       - name: Install dependencies
-        run: dart pub get --no-example
+        run: dart pub get
 
       - name: Verify formatting
-        run: dart format --output=none --set-exit-if-changed lib/
+        run: dart format --output=none --set-exit-if-changed lib test example
 
       - name: Analyze project source
-        run: dart analyze lib/
+        run: dart analyze lib test example
 
       - name: Run tests
         run: dart test
+
+      - name: Run example
+        run: dart run example/comparators_example.dart
+
+  min-versions:
+    name: Minimum SDK and dependency versions
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: dart-lang/setup-dart@v1
+        with:
+          sdk: 2.17.0
+
+      # The dev dependencies require a newer SDK and aren't needed to check
+      # that the package compiles with its lowest allowed dependencies.
+      - name: Remove dev dependencies
+        run: |
+          dart pub remove lints test
+          rm analysis_options.yaml
+
+      - name: Install the lowest allowed dependencies
+        run: dart pub downgrade
+
+      - name: Analyze project source
+        run: dart analyze lib example
+
+      - name: Run example
+        run: dart run example/comparators_example.dart
