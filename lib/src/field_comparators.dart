@@ -1,35 +1,6 @@
 import 'typedefs.dart';
 import 'util.dart';
 
-/// Returns a [Comparator] of type [T] comparing by the fields of type [R].
-/// Takes a [comparableTransformer] that is used to transform a value obtained
-/// by the [fieldExtractor] to a [Comparable] object.
-///
-/// Example:
-/// ```dart
-/// // a boolean transformer. bool is not a Comparable type, so this function
-/// // transforms it into an integer, which is Comparable
-/// int boolTransformer(bool value) => value ? 1 : 0;
-///
-/// // use the transformer defined above to transform the extracted bool field
-/// // values into Comparable objects
-/// users.sort(compareTransformed((u) => u.isAdmin, boolTransformer));
-///
-/// // alternatively, a closure can be used instead. it will most likely require
-/// // specifying the type parameters explicitly
-/// users.sort(
-///   compareTransformed<User, bool>((u) => u.isAdmin, (val) => val ? 1 : 0),
-/// );
-/// // in this package, there is `compareBool` function which does the same as in this example
-/// ```
-@Deprecated('It will be made private starting from v2.0.0. '
-    'Use `compare((x) => transform(x.field))` instead')
-Comparator<T> compareTransformed<T, R>(
-  FieldExtractor<T, R> fieldExtractor,
-  ComparableTransformer<R, Comparable> comparableTransformer,
-) =>
-    _compareTransformed(fieldExtractor, comparableTransformer);
-
 Comparator<T> _compareTransformed<T, R>(
   FieldExtractor<T, R> fieldExtractor,
   ComparableTransformer<R, Comparable> comparableTransformer,
@@ -79,6 +50,46 @@ Comparator<T> compareInverse<T>(FieldExtractor<T, Comparable> fieldExtractor) {
   return (a, b) => comparator(b, a);
 }
 
+/// Returns a [Comparator] of type [T] comparing by the nullable [Comparable] field extracted with the [fieldExtractor].
+///
+/// Null values are placed after non-null ones, or before them if [nullsFirst] is true.
+///
+/// Example:
+/// ```dart
+/// // users without a nickname will come last
+/// users.sort(compareNullable((u) => u.nickname));
+/// ```
+Comparator<T> compareNullable<T>(
+  FieldExtractor<T, Comparable?> fieldExtractor, {
+  bool nullsFirst = false,
+}) {
+  final nullOrder = nullsFirst ? -1 : 1;
+
+  return (a, b) {
+    final valueA = fieldExtractor(a);
+    final valueB = fieldExtractor(b);
+
+    if (valueA == null) return valueB == null ? 0 : nullOrder;
+    if (valueB == null) return -nullOrder;
+
+    return Comparable.compare(valueA, valueB);
+  };
+}
+
+/// Returns a [Comparator] of type [T] comparing the fields extracted with the [fieldExtractor] using the given
+/// [comparator].
+///
+/// Example:
+/// ```dart
+/// // case-insensitive comparison with `compareAsciiLowerCase` from the `package:collection`
+/// users.sort(compareWith((u) => u.username, compareAsciiLowerCase));
+/// ```
+Comparator<T> compareWith<T, R>(
+  FieldExtractor<T, R> fieldExtractor,
+  Comparator<R> comparator,
+) =>
+    (a, b) => comparator(fieldExtractor(a), fieldExtractor(b));
+
 /// Returns a comparator for a boolean field extracted with the given
 /// [fieldExtractor].
 ///
@@ -86,6 +97,14 @@ Comparator<T> compareInverse<T>(FieldExtractor<T, Comparable> fieldExtractor) {
 /// transformation: `true => 1, false => 0`.
 Comparator<T> compareBool<T>(FieldExtractor<T, bool> fieldExtractor) =>
     _compareTransformed(fieldExtractor, boolTransformer);
+
+/// Returns a comparator for a boolean field extracted with the given
+/// [fieldExtractor], placing `true` before `false`.
+Comparator<T> compareBoolInverse<T>(FieldExtractor<T, bool> fieldExtractor) {
+  final comparator = compareBool(fieldExtractor);
+
+  return (a, b) => comparator(b, a);
+}
 
 /// Returns a comparator that will compare the values of [T] using the [comparators] in their order in the iterable.
 /// Next comparators are used as tie breakers for the previous ones.
@@ -98,7 +117,7 @@ Comparator<T> compareBool<T>(FieldExtractor<T, bool> fieldExtractor) =>
 ///
 /// Example:
 /// ```dart
-/// // chaining using `then` from the `package:collection`
+/// // chaining using `then` from the `package:collection`, exported by this package
 /// users.sort(
 ///   compare<User>((user) => user.name).then(
 ///     compare<User>((user) => user.surname).then(
@@ -114,7 +133,7 @@ Comparator<T> compareBool<T>(FieldExtractor<T, bool> fieldExtractor) =>
 ///   compare((user) => user.country),
 /// ]));
 ///
-/// // using `inverse` from the `package:collection`
+/// // using `inverse` from the `package:collection`, exported by this package
 /// users.sort(compareSequentially([
 ///   // ...
 ///   compare((User user) => user.surname).inverse,

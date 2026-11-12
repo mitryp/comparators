@@ -11,17 +11,17 @@ to compare objects by their fields. It also provides a declarative way to combin
 
 Import `comparators/comparators.dart` to use:
 * By-field object comparators, in an ascending or an inverse order
+* Nullable field comparison
+* By-field comparison with a custom comparator
 * Boolean comparison
 * Combining comparators to break ties
+* The `then` and `inverse` comparator extensions from the `package:collection`
 
-Comparator extensions `then` and `reversed` from this package are **deprecated** and will be removed in 2.0.0.
-Please, use the analogues from the `package:collection`: `then` and `inverse`.
+### Migrating from 1.x
 
-In 2.0.0, this package will export those instead of the removed ones.
-
-Note that `package:comparators/extensions.dart` and `package:collection/collection.dart` cannot be imported together
-in a library that calls `then`: both declare it on `Comparator`, so the call is ambiguous and won't compile.
-When switching to `package:collection`, remove the `package:comparators/extensions.dart` import.
+* `package:comparators/extensions.dart` is removed. Instead of its `then` and `reversed`, use `then` and `inverse`
+  from the `package:collection`, which are exported by `package:comparators/comparators.dart`.
+* `compareTransformed` is removed. Use `compare((x) => transform(x.field))`, `compareBool` or `compareWith` instead.
 
 ### Getting Started
 To install the package, run `dart pub add comparators` or add the following line to your `pubspec.yaml`:
@@ -48,9 +48,24 @@ Comparison by a single field in an inverse order:
 users.sort(compareInverse((u) => u.username));
 ```
 
+Comparison by a nullable field:
+```dart
+// users without a nickname will come last, or first with `nullsFirst: true`
+users.sort(compareNullable((u) => u.nickname));
+```
+
+Comparison by a field with a custom comparator:
+```dart
+// case-insensitive comparison with `compareAsciiLowerCase` from the `package:collection`
+users.sort(compareWith((u) => u.username, compareAsciiLowerCase));
+```
+
 Comparison by a boolean field:
 ```dart
 users.sort(compareBool((u) => u.isActive));
+
+// active users first
+users.sort(compareBoolInverse((u) => u.isActive));
 ```
 When comparing boolean, the function will use the integer comparison and the following transformation: 
 `true => 1, false => 0`.
@@ -67,8 +82,8 @@ users.sort(compareSequentially([
 In this example, user objects will be compared by a name first,
 then by a surname, and by a country.
 
-The same result could be achieved using comparator chaining from the `package:collection`,
-but in a less declarative way:
+The same result could be achieved using comparator chaining with `then` from the `package:collection`
+(exported by this package), but in a less declarative way:
 ```dart
 users.sort(
   compare((User user) => user.name).then(

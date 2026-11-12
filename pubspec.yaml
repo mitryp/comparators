@@ -1,6 +1,6 @@
 name: comparators
 description: A package providing flexible Java-like comparator generators, featuring declarative comparator combining.
-version: 1.3.0
+version: 2.0.0
 repository: https://github.com/mitryp/comparators
 issue_tracker: https://github.com/mitryp/comparators/issues
 
