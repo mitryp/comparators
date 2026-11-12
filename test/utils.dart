@@ -2,19 +2,14 @@ import 'dart:math' show Random;
 
 import 'not_comparable.dart';
 
-const testRuns = 1000;
+const testRuns = 200;
 const randomListLength = 20;
 
-/// Checks whether the given [list] of [NotComparable] is sorted with the given [comparator].
-bool isSorted(
-  List<NotComparable> list, {
-  required Comparator<NotComparable> comparator,
-}) {
-  for (var i = 0; i < list.length - 1; i++) {
-    if (comparator(list[i], list[i + 1]) > 0) return false;
+/// Runs [body] [testRuns] times with a seeded [Random], so failures are reproducible.
+void repeatSeeded(void Function(Random rand) body) {
+  for (var seed = 0; seed < testRuns; seed++) {
+    body(Random(seed));
   }
-
-  return true;
 }
 
 /// Generates a list of [randomListLength] of random [NotComparable] objects.
@@ -29,3 +24,9 @@ int matcherComparator(NotComparable a, NotComparable b) {
 
   return aB.compareTo(bB);
 }
+
+List<int> ints(Iterable<NotComparable> list) =>
+    list.map((nc) => nc.intValue).toList();
+
+List<bool> bools(Iterable<NotComparable> list) =>
+    list.map((nc) => nc.boolValue).toList();

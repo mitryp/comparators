@@ -1,111 +1,182 @@
-import 'dart:math';
-
+import 'package:collection/collection.dart' show ComparatorExtension;
 import 'package:comparators/comparators.dart';
 import 'package:comparators/src/util.dart';
-import 'package:test/expect.dart';
-import 'package:test/scaffolding.dart';
-import 'package:test_utils/test_utils.dart';
+import 'package:test/test.dart';
 
 import 'not_comparable.dart';
-import 'utils.dart' as utils;
+import 'utils.dart';
 
 void main() {
-  final rand = Random();
-
   group('Utils tests', () {
-    test(
-      '`identityTransformer` works correctly',
-      () => repeat(times: utils.testRuns, () {
-        final i = rand.nextInt(99999);
+    test('`identityTransformer` returns its argument', () {
+      expect(identityTransformer(42), 42);
+      expect(identityTransformer('a'), 'a');
+    });
 
-        expect(identityTransformer(i), equals(i));
-      }),
-    );
-
-    test(
-      '`boolTransformer` works correctly',
-      () => repeat(times: utils.testRuns, () {
-        final b = rand.nextBool();
-        final matcher = [false, true].indexOf(b);
-
-        expect(boolTransformer(b), equals(matcher));
-      }),
-    );
+    test('`boolTransformer` maps false to 0 and true to 1', () {
+      expect(boolTransformer(false), 0);
+      expect(boolTransformer(true), 1);
+    });
   });
 
   group('Comparators tests', () {
-    test(
-      '`compareTransformed` works correctly',
-      () => repeat(times: utils.testRuns, () {
-        final list = utils.rList(rand);
+    test('`compareTransformed` sorts by the transformed value', () {
+      repeatSeeded((rand) {
+        final list = rList(rand);
+        final expected = ints(list)..sort((a, b) => b.compareTo(a));
+
         // ignore: deprecated_member_use_from_same_package
-        final comparator = compareTransformed<NotComparable, NotComparable>(
-          (nc) => nc,
+        list.sort(compareTransformed<NotComparable, int>(
           (nc) => nc.intValue,
-        );
+          (i) => -i,
+        ));
 
-        list.sort(comparator);
+        expect(ints(list), expected);
+      });
+    });
 
-        expect(utils.isSorted(list, comparator: comparator), isTrue);
-      }),
-    );
+    test('`compare` sorts in an ascending order', () {
+      repeatSeeded((rand) {
+        final list = rList(rand);
+        final expected = ints(list)..sort();
 
-    test(
-      '`compare` works correctly',
-      () => repeat(times: utils.testRuns, () {
-        final list = utils.rList(rand);
-        final comparator = compare<NotComparable>((nc) => nc.intValue);
+        list.sort(compare((nc) => nc.intValue));
 
-        list.sort(comparator);
+        expect(ints(list), expected);
+      });
+    });
 
-        expect(utils.isSorted(list, comparator: comparator), isTrue);
-      }),
-    );
+    test('`compare` returns the sign of `compareTo`', () {
+      final comparator = compare<String>((s) => s);
 
-    test(
-      '`compareInverse` works correctly',
-      () => repeat(times: utils.testRuns, () {
-        final list = utils.rList(rand);
-        final comparator = compareInverse<NotComparable>((nc) => nc.intValue);
-        final originalComparator = compare<NotComparable>((nc) => nc.intValue);
+      expect(comparator('a', 'b'), lessThan(0));
+      expect(comparator('b', 'a'), greaterThan(0));
+      expect(comparator('a', 'a'), 0);
+    });
 
-        list.sort(comparator);
+    test('`compareInverse` sorts in a descending order', () {
+      repeatSeeded((rand) {
+        final list = rList(rand);
+        final expected = ints(list)..sort((a, b) => b.compareTo(a));
 
-        expect(
-          utils.isSorted(list, comparator: (a, b) => originalComparator(b, a)),
-          isTrue,
-        );
-      }),
-    );
+        list.sort(compareInverse((nc) => nc.intValue));
 
-    test(
-      '`compareBool` works correctly',
-      () => repeat(times: utils.testRuns, () {
-        final list = utils.rList(rand);
-        final comparator = compareBool<NotComparable>((nc) => nc.boolValue);
+        expect(ints(list), expected);
+      });
+    });
 
-        list.sort(comparator);
+    test('`compareInverse` returns the opposite sign of `compare`', () {
+      final comparator = compareInverse<String>((s) => s);
 
-        expect(utils.isSorted(list, comparator: comparator), isTrue);
-      }),
-    );
+      expect(comparator('a', 'b'), greaterThan(0));
+      expect(comparator('b', 'a'), lessThan(0));
+      expect(comparator('a', 'a'), 0);
+    });
 
-    test(
-      '`compareSequentially` works correctly',
-      () => repeat(times: utils.testRuns, () {
-        final list = utils.rList(rand);
-        final matcher = [...list];
+    test('`compareBool` puts false before true', () {
+      repeatSeeded((rand) {
+        final list = rList(rand);
+        final falseCount = list.where((nc) => !nc.boolValue).length;
+        final expected = [
+          for (var i = 0; i < list.length; i++) i >= falseCount,
+        ];
 
-        final comparator = compareSequentially<NotComparable>([
+        list.sort(compareBool((nc) => nc.boolValue));
+
+        expect(bools(list), expected);
+      });
+    });
+
+    test('`compareSequentially` breaks ties with the next comparators', () {
+      repeatSeeded((rand) {
+        final list = rList(rand);
+        final expected = [...list]..sort(matcherComparator);
+
+        list.sort(compareSequentially([
           compare((nc) => nc.intValue),
           compareBool((nc) => nc.boolValue),
-        ]);
+        ]));
 
-        list.sort(comparator);
-        matcher.sort(utils.matcherComparator);
+        expect(list, orderedEquals(expected));
+      });
+    });
 
-        expect(list, orderedEquals(matcher));
-      }),
-    );
+    test('`compareSequentially` respects the comparators order', () {
+      const a = NotComparable(1, true), b = NotComparable(2, false);
+
+      final byIntFirst = compareSequentially<NotComparable>([
+        compare((nc) => nc.intValue),
+        compareBool((nc) => nc.boolValue),
+      ]);
+      final byBoolFirst = compareSequentially<NotComparable>([
+        compareBool((nc) => nc.boolValue),
+        compare((nc) => nc.intValue),
+      ]);
+
+      expect(byIntFirst(a, b), lessThan(0));
+      expect(byBoolFirst(a, b), greaterThan(0));
+    });
+
+    test('`compareSequentially` supports inverted comparators', () {
+      final list = [
+        const NotComparable(1, false),
+        const NotComparable(0, true),
+        const NotComparable(1, true),
+        const NotComparable(0, false),
+      ];
+
+      list.sort(compareSequentially([
+        compareBool((NotComparable nc) => nc.boolValue).inverse,
+        compare((nc) => nc.intValue),
+      ]));
+
+      expect(list, const [
+        NotComparable(0, true),
+        NotComparable(1, true),
+        NotComparable(0, false),
+        NotComparable(1, false),
+      ]);
+    });
+
+    test('`compareSequentially` returns 0 when all comparators tie', () {
+      final comparator = compareSequentially<NotComparable>([
+        compare((nc) => nc.intValue),
+        compareBool((nc) => nc.boolValue),
+      ]);
+
+      expect(
+          comparator(
+              const NotComparable(1, true), const NotComparable(1, true)),
+          0);
+    });
+
+    test('`compareSequentially` with a single comparator returns it', () {
+      final comparator = compare<NotComparable>((nc) => nc.intValue);
+
+      expect(compareSequentially([comparator]), same(comparator));
+    });
+
+    test('`compareSequentially` reads the iterable once', () {
+      var reads = 0;
+      final comparators = [
+        compare<NotComparable>((nc) => nc.intValue),
+        compareBool<NotComparable>((nc) => nc.boolValue),
+      ].map((c) {
+        reads++;
+        return c;
+      });
+
+      final comparator = compareSequentially(comparators);
+      comparator(const NotComparable(1, true), const NotComparable(1, false));
+
+      expect(reads, 2);
+    });
+
+    test('`compareSequentially` throws on an empty iterable', () {
+      expect(
+        () => compareSequentially<NotComparable>([]),
+        throwsStateError,
+      );
+    });
   });
 }
