@@ -1,4 +1,4 @@
-import 'package:collection/collection.dart' show ComparatorExtension;
+import 'package:collection/collection.dart' show compareAsciiLowerCase;
 import 'package:comparators/comparators.dart';
 import 'package:comparators/src/util.dart';
 import 'package:test/test.dart';
@@ -20,21 +20,6 @@ void main() {
   });
 
   group('Comparators tests', () {
-    test('`compareTransformed` sorts by the transformed value', () {
-      repeatSeeded((rand) {
-        final list = rList(rand);
-        final expected = ints(list)..sort((a, b) => b.compareTo(a));
-
-        // ignore: deprecated_member_use_from_same_package
-        list.sort(compareTransformed<NotComparable, int>(
-          (nc) => nc.intValue,
-          (i) => -i,
-        ));
-
-        expect(ints(list), expected);
-      });
-    });
-
     test('`compare` sorts in an ascending order', () {
       repeatSeeded((rand) {
         final list = rList(rand);
@@ -84,6 +69,59 @@ void main() {
         list.sort(compareBool((nc) => nc.boolValue));
 
         expect(bools(list), expected);
+      });
+    });
+
+    test('`compareBoolInverse` puts true before false', () {
+      repeatSeeded((rand) {
+        final list = rList(rand);
+        final trueCount = list.where((nc) => nc.boolValue).length;
+        final expected = [
+          for (var i = 0; i < list.length; i++) i < trueCount,
+        ];
+
+        list.sort(compareBoolInverse((nc) => nc.boolValue));
+
+        expect(bools(list), expected);
+      });
+    });
+
+    test('`compareNullable` puts nulls last by default', () {
+      final list = ['b', null, 'a', null, 'c'];
+
+      list.sort(compareNullable((s) => s));
+
+      expect(list, ['a', 'b', 'c', null, null]);
+    });
+
+    test('`compareNullable` puts nulls first with `nullsFirst`', () {
+      final list = ['b', null, 'a', null, 'c'];
+
+      list.sort(compareNullable((s) => s, nullsFirst: true));
+
+      expect(list, [null, null, 'a', 'b', 'c']);
+    });
+
+    test('`compareNullable` treats two nulls as equal', () {
+      expect(compareNullable<String?>((s) => s)(null, null), 0);
+    });
+
+    test('`compareWith` compares fields with the given comparator', () {
+      final list = ['b', 'C', 'a', 'B'];
+
+      list.sort(compareWith((s) => s, compareAsciiLowerCase));
+
+      expect(list, ['a', 'B', 'b', 'C']);
+    });
+
+    test('`compareWith` passes the extracted fields to the comparator', () {
+      repeatSeeded((rand) {
+        final list = rList(rand);
+        final expected = ints(list)..sort((a, b) => b.compareTo(a));
+
+        list.sort(compareWith((nc) => nc.intValue, (int a, int b) => b - a));
+
+        expect(ints(list), expected);
       });
     });
 

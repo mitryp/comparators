@@ -1,3 +1,12 @@
+## 2.0.0
+
+- **Breaking:** removed `package:comparators/extensions.dart` with the deprecated `then` and `reversed` extensions.
+  `package:comparators/comparators.dart` now exports `then` and `inverse` from the `package:collection` instead;
+- **Breaking:** removed the deprecated `compareTransformed`;
+- Implemented `compareNullable` for comparing by nullable fields, with nulls placed last or first;
+- Implemented `compareWith` for comparing by fields with a custom comparator;
+- Implemented `compareBoolInverse` for placing `true` before `false`.
+
 ## 1.3.0
 
 - Relaxed the `package:collection` constraint to `^1.15.0`, so the package can be used on Dart SDKs before 3.4 and

@@ -1,4 +1,4 @@
-import 'package:collection/collection.dart' show ComparatorExtension;
+import 'package:collection/collection.dart' show compareAsciiLowerCase;
 import 'package:comparators/comparators.dart';
 
 final List<User> users = [
@@ -54,13 +54,18 @@ void main() {
   printUsers();
   reset();
 
+  // the same, but case-insensitive
+  // * `compareAsciiLowerCase` is from the `package:collection`
+  usersCopy.sort(compareWith((u) => u.username, compareAsciiLowerCase));
+
+  printUsers();
+  reset();
+
   // this will sort the users by their activity first, then by their email,
   // and then by their username
-  // * `inverse` is from the `package:collection`
   usersCopy.sort(compareSequentially([
     // the users which active is set to true will come first in the list
-    // note that using `inverse` requires explicit type in the comparator
-    compareBool((User u) => u.isActive).inverse,
+    compareBoolInverse((u) => u.isActive),
     // then users will be sorted by their email field
     compare((u) => u.email),
     // and then by their username
@@ -71,7 +76,7 @@ void main() {
   reset();
 
   // alternatively, it is possible to achieve the same result using `then` and `inverse` extension methods from the
-  // `package:collection`, but it is necessary to write types explicitly in most cases
+  // `package:collection` (exported by this package), but it is necessary to write types explicitly in most cases
   usersCopy.sort(
     compareBool((User u) => u.isActive).inverse.then(
           compare((User u) => u.email).then(
